@@ -65,10 +65,21 @@ Window::Window(int width, int height, LPCWSTR ClassName) : width(width) , height
 
 	ShowWindow(hwnd,SW_SHOWDEFAULT);
 
+	pgfx = std::make_unique<Graphics>(hwnd);
+
 }
 
 Window::~Window() {
 	DestroyWindow(hwnd);
+}
+
+Graphics& Window::gfx()
+{
+	if (!pgfx) {
+		//oh no
+		throw "GRAPHICS ARE FRIED";
+	}
+	return *pgfx;
 }
 
 std::optional<int> Window::ProcessMessages()
@@ -118,10 +129,12 @@ LRESULT WINAPI Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lpar
 
 	switch (msg) {
 	//KEYBOARD
+	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN: {
 		kbd.KeyDown(wparam);
 		break;
 	}
+	case WM_KEYUP:
 	case WM_SYSKEYUP: {
 		kbd.KeyUp(wparam);
 		break;
@@ -156,19 +169,29 @@ LRESULT WINAPI Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lpar
 		break;
 	}
 	case WM_LBUTTONDOWN: {
-		mouse.LeftDown();
-		break;
-	}
-	case WM_LBUTTONUP: {
-		mouse.LeftUp();
+		const POINTS pt = MAKEPOINTS(lparam);
+		mouse.LeftDown(pt.x, pt.y);
 		break;
 	}
 	case WM_RBUTTONDOWN: {
-		mouse.RightDown();
+		const POINTS pt = MAKEPOINTS(lparam);
+		mouse.RightDown(pt.x, pt.y);
+		break;
+	}
+	case WM_LBUTTONUP: {
+		const POINTS pt = MAKEPOINTS(lparam);
+		mouse.LeftUp(pt.x, pt.y);
 		break;
 	}
 	case WM_RBUTTONUP: {
-		mouse.RightUp();
+		const POINTS pt = MAKEPOINTS(lparam);
+		mouse.RightUp(pt.x, pt.y);
+		break;
+	}
+	case WM_MOUSEWHEEL: {
+		const POINTS pt = MAKEPOINTS(lparam);
+		const int delta = GET_WHEEL_DELTA_WPARAM(wparam);
+		mouse.OnWheelDelta(pt.x, pt.y, delta);
 		break;
 	}
 	//QUIT

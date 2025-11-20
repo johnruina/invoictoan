@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <optional>
+#include <memory>
 
 #include "Graphics.h"
 #include "Audio.h"
@@ -35,6 +36,7 @@ public:
 	Audio audio;
 	Mouse mouse;
 	Keyboard kbd;
+	Graphics& gfx();
 private:
 	static LRESULT CALLBACK HandleMsgSetup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) noexcept;
@@ -43,5 +45,5 @@ private:
 	HWND hwnd;
 	UINT height;
 	UINT width;
-
+	std::unique_ptr<Graphics> pgfx;
 };

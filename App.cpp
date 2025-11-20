@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <string>
+#include <random>
 
 #include "App.h"
 
@@ -18,7 +19,6 @@ int App::Go() {
 		if (const auto ecode = Window::ProcessMessages()) {
 			return *ecode;
 		}
-
 			
 		DoFrame();
 	}
@@ -31,10 +31,11 @@ long long int frame = 0;
 void App::DoFrame()
 {
 	frame++;
-	
-	wnd.SetWindowTitle( std::to_string(wnd.kbd.IsKeyDown('A')).c_str() );
-
+	float color = float(rand()%255) / 255.0f;
+	wnd.gfx().ClearBuffer(color,color, 1.0f);
 	if (frame == 5) {
 		wnd.audio.PlayAudio(L"Agartha.wav");
 	}
+
+	wnd.gfx().RenderFrame();
 }
